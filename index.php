@@ -11,7 +11,7 @@
         for ($i = 0; $i < 4000; $i++) {
             $test = $object->features[$i]->geometry->coordinates;
             if (strpos($object->features[$i]->properties->place, "Indone") != false) {
-                $output .= $test[0] . "," . $test[1] . "," . $object->features[$i]->properties->mag . "}";
+                $output .= $test[0] . "," . $test[1] . "," . $object->features[$i]->properties->mag . "," . $object->features[$i]->properties->tsunami . "}";
             }
         }
         echo htmlspecialchars($output);
@@ -54,14 +54,18 @@
                 accessToken: 'pk.eyJ1IjoibXAyNiIsImEiOiJjaXBsbHBvbTAwMDhtdmJudGU2cHBjZTN3In0._OyAEEAuscIVkPmPuCF5pg'
             })
             .addTo(map);
-
-        function addMarker(x, y, r) {
+        var te = "";
+        function addMarker(x, y, r, tsunami) {
+            if (tsunami == 1){
+                te = " + tsunami"
+            }
             L.circleMarker([x, y], {
                 color: "red",
                 radius: r * 5
             }).addTo(map)
-                .bindPopup('Earthquake')
+                .bindPopup('Earthquake' + te)
                 .openPopup();
+            te = "";
         }
         var info = document.getElementById("dom-target").innerText.split("}");
 
@@ -78,7 +82,7 @@
 
 
         // TODO: Change zoom if neeeded
-        map.setView([-6.8886, 109.6753]);
+        map.setView([-6.8886, 109.6753], 16);
         // TODO: change source of data with rising sea levels
         $.getJSON("rodents.geojson", function(data) {
             var locations = data.features.map(function(rat) {
