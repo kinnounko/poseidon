@@ -1,8 +1,5 @@
-import os
-import pandas as pd
-import numpy as np
 
-from sklearn.linear_model import LogisticRegression
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 
 from sklearn.metrics import r2_score
@@ -36,7 +33,7 @@ def remove_missing_cols(df, missing_thres=0.6):
     return df[cols_to_sel]
 
 
-def prepare dataset(df):
+def prepare_dataset(df):
     ### Decide on target
     target = ["intensity_soloviev_wav"]
 
@@ -77,7 +74,7 @@ def build_model(X_train, X_test, y_train, y_test):
     #### Test on test
     y_pred = trained_model.predict(X_test)
 
-    return [y_pred, r2_score(y_test, y_pred)]
+    return y_pred, r2_score(y_test, y_pred)
 
 
 if __name__ == "main":
@@ -132,7 +129,8 @@ if __name__ == "main":
 
     merged_with_sources["date"] = pd.to_datetime(merged_with_sources["date"])
     merged_with_sources.sort_values(by="date", inplace=True)
-    build_model(X_train, X_test, y_train, y_test)
+    X_train, X_test, y_train, y_test = prepare dataset(merged_with_sources)
+    y_pred, rsquared = build_model(X_train, X_test, y_train, y_test)
 
 
 
