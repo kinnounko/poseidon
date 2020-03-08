@@ -6,9 +6,9 @@
         $output = "";
 
         ini_set("allow_url_fopen", 1);
-        $json = file_get_contents('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson');
+        $json = file_get_contents('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson');
         $object = json_decode($json);
-        for ($i = 0; $i < 4000; $i++) {
+        for ($i = 0; $i < 20000; $i++) {
             $test = $object->features[$i]->geometry->coordinates;
             if (strpos($object->features[$i]->properties->place, "Indone") != false) {
                 $output .= $test[0] . "," . $test[1] . "," . $object->features[$i]->properties->mag . "," . $object->features[$i]->properties->tsunami . "}";
@@ -39,7 +39,7 @@
     </style>
     <script>
         // initialize the map
-        var map = L.map('leafletmap').setView([-4.5, 117.0], 13);
+        var map = L.map('leafletmap').setView([-0.8917, 119.8707], 5);
 
         // TODO: replace reference and data + origin of map
         // load a tile layer
@@ -77,25 +77,6 @@
 
         store.forEach(el => {
             addMarker(el.split(",")[1], el.split(",")[0], el.split(",")[2]);
-        });
-
-
-
-        // TODO: Change zoom if neeeded
-        map.setView([-6.8886, 109.6753], 16);
-        // TODO: change source of data with rising sea levels
-        $.getJSON("rodents.geojson", function(data) {
-            var locations = data.features.map(function(rat) {
-                // the heatmap plugin wants an array of each location
-                var location = rat.geometry.coordinates.reverse();
-                location.push(0.5);
-                return location; // e.g. [50.5, 30.5, 0.2], // lat, lng, intensity
-            });
-
-            var heat = L.heatLayer(locations, {
-                radius: 35
-            });
-            map.addLayer(heat);
         });
     </script>
 </body>
