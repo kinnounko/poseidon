@@ -1,5 +1,4 @@
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <head>
     <div id="dom-target" style="display: none;">
@@ -11,8 +10,8 @@
         $object = json_decode($json);
         for ($i = 0; $i < 4000; $i++) {
             $test = $object->features[$i]->geometry->coordinates;
-            if (strpos($object->features[$i]->properties->place, "Indone") != false){
-                $output .= $test[0] . "," . $test[1] . "}";
+            if (strpos($object->features[$i]->properties->place, "Indone") != false) {
+                $output .= $test[0] . "," . $test[1] . "," . $object->features[$i]->properties->mag . "}";
             }
         }
         echo htmlspecialchars($output);
@@ -28,7 +27,7 @@
 
 <body style="font-family: Arial,Helvetica Neue,Helvetica,sans-serif; ">
     <center>
-        <h1>poseidon</h1>
+        <img src="logo.jpg" style="height:128px;width:128px;">
     </center>
     <!--<iframe width="100%" height="100%" style="position:absolute;border:none;top:0;left:0;right:0;bottom:0;" scroll="no" onload="resizeIframe(this)" src="https://script.google.com/macros/s/AKfycbyaY60T7YR6mw4ZgB1gXuba7QyL2-21fNeIkIHgxVlz3ZKol_N2/exec" sandbox="allow-scripts allow-pointer-lock allow-same-origin allow-forms allow-modals allow-popups" ></iframe>-->
 
@@ -56,8 +55,11 @@
             })
             .addTo(map);
 
-        function addMarker(x, y) {
-            L.marker([x, y]).addTo(map)
+        function addMarker(x, y, r) {
+            L.circleMarker([x, y], {
+                color: "red",
+                radius: r * 5
+            }).addTo(map)
                 .bindPopup('Earthquake')
                 .openPopup();
         }
@@ -69,15 +71,14 @@
             store.push(el.replace(/ /g, '').replace(/\n/g, ''));
         });
 
-        console.log(store);
         store.forEach(el => {
-            addMarker(el.split(",")[1], el.split(",")[0]);
+            addMarker(el.split(",")[1], el.split(",")[0], el.split(",")[2]);
         });
 
 
 
         // TODO: Change zoom if neeeded
-        map.setZoom(5);
+        map.setView([-6.8886, 109.6753]);
         // TODO: change source of data with rising sea levels
         $.getJSON("rodents.geojson", function(data) {
             var locations = data.features.map(function(rat) {
