@@ -2,6 +2,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <head>
+    <div id="dom-target" style="display: none;">
+        <?php
+        $output = "";
+
+        ini_set("allow_url_fopen", 1);
+        $json = file_get_contents('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson');
+        $object = json_decode($json);
+        for ($i = 0; $i < 4000; $i++) {
+            $test = $object->features[$i]->geometry->coordinates;
+            if (strpos($object->features[$i]->properties->place, "Indone") != false){
+                $output .= $test[0] . "," . $test[1] . "}";
+            }
+        }
+        echo htmlspecialchars($output);
+        ?>
+    </div>
+
+
     <!-- Import all your used libraries here -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.css' rel='stylesheet' />
@@ -38,30 +56,25 @@
             })
             .addTo(map);
 
-        // Adding refuges on the map  -- need to change to logical locations (altitude etc.)
-        L.marker([-2, 104]).addTo(map)
-            .bindPopup('Refuge')
-            .openPopup();
+        function addMarker(x, y) {
+            L.marker([x, y]).addTo(map)
+                .bindPopup('Earthquake')
+                .openPopup();
+        }
+        var info = document.getElementById("dom-target").innerText.split("}");
 
-        L.marker([-3, 103]).addTo(map)
-            .bindPopup('Refuge')
-            .openPopup();
+        var store = [];
 
-        L.marker([-3, 110.7122]).addTo(map)
-            .bindPopup('Refuge')
-            .openPopup();
+        info.forEach(el => {
+            store.push(el.replace(/ /g, '').replace(/\n/g, ''));
+        });
 
-        L.marker([-4.4, 105]).addTo(map)
-            .bindPopup('Refuge')
-            .openPopup();
+        console.log(store);
+        store.forEach(el => {
+            addMarker(el.split(",")[1], el.split(",")[0]);
+        });
 
-        L.marker([-5, 105]).addTo(map)
-            .bindPopup('Refuge')
-            .openPopup();
 
-        L.marker([-7.3, 110.5]).addTo(map)
-            .bindPopup('Refuge')
-            .openPopup();
 
         // TODO: Change zoom if neeeded
         map.setZoom(5);
@@ -80,16 +93,6 @@
             map.addLayer(heat);
         });
     </script>
-
-    <?php
-    ini_set("allow_url_fopen", 1);
-    $json = file_get_contents('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson');
-    $object = json_decode($json);
-    for ($i = 0; $i < 20; $i++) {
-        $test = $object->features[$i]->properties;
-        echo "<p>" . "Location: " . $test->place . "<br>" . "Magnetude: " . $test->mag . "</p><br>";
-    }
-    ?>
 </body>
 
 </html>
