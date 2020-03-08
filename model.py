@@ -134,7 +134,7 @@ if __name__ == "__main__":
     print("Build model")
     X_train, X_test, y_train, y_test = prepare_dataset(merged_with_sources)
     y_pred, rsquared = build_model(X_train, X_test, y_train, y_test)
-    print(f"Rsquared is: {rsquared}")
+    print("Rsquared is: {}".format(rsquared))
     pd.DataFrame([y_pred], columns="predictions").to_csv("predictions.csv", index=False)
 
 
