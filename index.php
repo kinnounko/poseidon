@@ -75,7 +75,8 @@
             }
             L.circleMarker([x, y], {
                     color: coll,
-                    radius: 50 - ((6 - r) * 20)
+                    radius: 50 - ((6 - r) * 20),
+                    fillOpacity: 1.0
                 }).addTo(map)
                 .bindPopup('Earthquake' + te + ", mag. " + r)
                 .openPopup();
