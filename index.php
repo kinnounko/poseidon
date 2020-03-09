@@ -65,10 +65,12 @@
         function addCircleMarker(x, y, r, tsunami) {
             var coll = "";
             if (tsunami == 1) {
-                te = " + tsunami"
-            } 
+                te = " + tsunami";
+            }
             if (r < 4.3) {
                 coll = "yellow";
+            } else if (r > 5.5) {
+                coll = "#4d0000";
             } else if (r > 5) {
                 coll = "red";
             } else {
