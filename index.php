@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.css' rel='stylesheet' />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
@@ -24,9 +25,7 @@
     </div>
 
 <body style="font-family: Arial,Helvetica Neue,Helvetica,sans-serif; ">
-    <center>
-        <img src="logo.jpg" style="height:128px;width:128px;">
-    </center>
+    <img src="logo.jpg" style="height:128px;width:128px;">
     <div id="leafletmap"></div>
 
     <style>
@@ -53,7 +52,7 @@
             .addTo(map);
         var te = "";
         var tese = 0;
-        
+
         var greenIcon = new L.Icon({
             iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -64,12 +63,19 @@
         });
 
         function addCircleMarker(x, y, r, tsunami) {
+            var coll = "";
             if (tsunami == 1) {
                 te = " + tsunami"
+            } else if (r < 4.3) {
+                coll = "yellow";
+            } else if (r > 5) {
+                coll = "red";
+            } else {
+                coll = "orange";
             }
             L.circleMarker([x, y], {
-                    color: "red",
-                    radius: (6 - r) * 20
+                    color: coll,
+                    radius: 50 - ((6 - r) * 20)
                 }).addTo(map)
                 .bindPopup('Earthquake' + te + ", mag. " + r)
                 .openPopup();
@@ -79,10 +85,16 @@
 
         function addMarker(x, y, message) {
             L.marker([x, y]).addTo(map)
-                .bindPopup('Refuge: ' + message)
+                .bindPopup('Shelter: ' + message)
                 .openPopup();
         }
 
+
+        addMarker(-7.585, 108.648, "place for 2 cows and a car");
+        addMarker(-0.971290, 110.698114, "we have lorem ipsum and place for a sit amet");
+        addMarker(-1.059157, 115.930861, "place for a cow and a 2 people");
+        addMarker(-1.857497, 119.724974, "food and place for 3 people");
+        addMarker(-3.168490, 121.654228, "place for tools and lorem ipsum dolor sit amet");
 
         var info = document.getElementById("dom-target").innerText.split("}");
 
@@ -95,9 +107,6 @@
         store.forEach(el => {
             addCircleMarker(el.split(",")[1], el.split(",")[0], el.split(",")[2], el.split(",")[3]);
         });
-
-
-        addMarker(-7.585, 108.648, "place for 2 cows and a car");
     </script>
 </body>
 
