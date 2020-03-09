@@ -66,7 +66,8 @@
             var coll = "";
             if (tsunami == 1) {
                 te = " + tsunami"
-            } else if (r < 4.3) {
+            } 
+            if (r < 4.3) {
                 coll = "yellow";
             } else if (r > 5) {
                 coll = "red";
@@ -84,18 +85,18 @@
 
         }
 
-        function addMarker(x, y, message) {
+        function addShelter(x, y, message) {
             L.marker([x, y]).addTo(map)
                 .bindPopup('Shelter: ' + message)
                 .openPopup();
         }
 
 
-        addMarker(-7.585, 108.648, "place for 2 cows and a car");
-        addMarker(-0.971290, 110.698114, "we have lorem ipsum and place for a sit amet");
-        addMarker(-1.059157, 115.930861, "place for a cow and a 2 people");
-        addMarker(-1.857497, 119.724974, "food and place for 3 people");
-        addMarker(-3.168490, 121.654228, "place for tools and lorem ipsum dolor sit amet");
+        addShelter(-7.585, 108.648, "place for 2 cows and a car");
+        addShelter(-0.971290, 110.698114, "we have lorem ipsum and place for a sit amet");
+        addShelter(-1.059157, 115.930861, "place for a cow and a 2 people");
+        addShelter(-1.857497, 119.724974, "food and place for 3 people");
+        addShelter(-3.168490, 121.654228, "place for tools and lorem ipsum dolor sit amet");
 
         var info = document.getElementById("dom-target").innerText.split("}");
 
