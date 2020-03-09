@@ -1,5 +1,5 @@
-
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 
 from sklearn.metrics import r2_score
@@ -16,11 +16,6 @@ def filter_cause(df):
     filt_df = df.loc[df.causes == "Earthquake"].copy()
     return filt_df
 
-def aggregate_per_year(df, col_to_aggregate, aggregation_method="count"):
-    agg_df = df.groupby("year").agg(aggregation_method)[col_to_aggregate].reset_index()
-    plt.plot(agg_df["year"], agg_df[col_to_aggregate])
-    return agg_df
-
 
 def remove_missing_cols(df, missing_thres=0.6):
     missing_df = (pd.DataFrame(df.isna().sum() / len(df))
@@ -28,30 +23,27 @@ def remove_missing_cols(df, missing_thres=0.6):
                   .rename(columns={"index": "column", 0: "missing"}))
     missing_df.sort_values(by="missing", ascending=False)
 
-    cols_to_sel = missing_df.loc[missing_df.missing < missing_thres, "column"].values.tolist()
+    cols_to_sel = missing_df.loc[missing_df.missing < missing_thres, "column"].copy().values.tolist()
 
-    return df[cols_to_sel]
-
+    return df[cols_to_sel].copy()
 
 def prepare_dataset(df):
     ### Decide on target
-    target = ["intensity_soloviev_wav"]
+    target = ["intensity_soloviev"]
 
-    cols_to_predict = ["maximum_height_wav",
-                       "focal_depth_wav",
-                       "primary_magnitude_wav",
+    cols_to_predict = ["maximum_height",
+                       "focal_depth",
+                       "primary_magnitude",
                       ]
 
-    cols_to_sel = cols_to_predict + target
-
-    missing_vals_conds = ((df.intensity_soloviev_wav.isna()) &
-                          (df.primary_magnitude_wav.isna()))
+    missing_vals_conds = ((df.intensity_soloviev.isna()) &
+                          (df.primary_magnitude.isna()))
 
     no_na_df = df.loc[~missing_vals_conds].copy()
-    no_na_df = no_na_df.loc[~no_na_df.intensity_soloviev_wav.isna()]
+    no_na_df = no_na_df.loc[~no_na_df.intensity_soloviev.isna()].copy()
 
-    X = no_na_df[cols_to_predict]
-    y = no_na_df[target]
+    X = no_na_df[cols_to_predict].copy()
+    y = no_na_df[target].copy()
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
@@ -59,7 +51,6 @@ def prepare_dataset(df):
     for col in X_train.columns:
         X_train[col].fillna(X_train[col].mean(skipna=True), inplace=True)
     for col in X_test.columns:
-        print(col)
         X_test[col].fillna(X_test[col].mean(skipna=True), inplace=True)
 
     return [X_train, X_test, y_train, y_test]
@@ -68,21 +59,25 @@ def prepare_dataset(df):
 ##### Build model
 
 def build_model(X_train, X_test, y_train, y_test):
-    rf = RandomForestRegressor()
-    trained_model = rf.fit(X_train, y_train)
+    rf = RandomForestRegressor(max_depth=2,
+                               max_features=2/3,
+                               min_samples_leaf=5,
+                               n_estimators=200,
+                               oob_score=True,
+                               random_state=3)
+    trained_model = rf.fit(X_train, y_train.values.ravel())
 
     #### Test on test
     y_pred = trained_model.predict(X_test)
 
-    return y_pred, r2_score(y_test, y_pred)
+    return [y_pred, r2_score(y_test, y_pred)]
 
 
-if __name__ == "main":
-### Read data
-
+if __name__ == "__main__":
+    ### Read data
+    print("Read files")
     sources = pd.read_csv("data/sources.csv")
     waves = pd.read_csv("data/waves.csv")
-
 
     waves.columns = waves.columns.str.lower()
     sources.columns = sources.columns.str.lower()
@@ -113,24 +108,31 @@ if __name__ == "main":
     earthquake_df_sel_indonesia = earthquake_df_sel.loc[earthquake_df_sel.country == "INDONESIA"].copy()
 
     #### Merge both sources
-    merged_with_sources = (earthquake_df_sel.merge(filt_sources["source_id", "causes"],
+    merged_with_sources = (earthquake_df_sel.merge(filt_sources[["source_id", "causes"]],
                                                    how="left", on=["source_id"], suffixes=("_wav",  "_sou")))
 
-    merged_with_sources["hour_wav"] = merged_with_sources["hour_wav"].apply(lambda x: str(x)[:-2])
-    merged_with_sources["minute_wav"] = merged_with_sources["minute_wav"].apply(lambda x: str(x)[:-2])
+    merged_with_sources["month"] = merged_with_sources["month"].apply(lambda x: str(x)[:-2])
+    merged_with_sources["day"] = merged_with_sources["day"].apply(lambda x: str(x)[:-2])
 
-    merged_with_sources["date"] = (merged_with_sources["year_wav"].map(str) + "-"
-                                   + merged_with_sources["month_wav"]
-                                   + "-" + merged_with_sources["day_wav"])
+    merged_with_sources["hour"] = merged_with_sources["hour"].apply(lambda x: str(x)[:-2])
+    merged_with_sources["minute"] = merged_with_sources["minute"].apply(lambda x: str(x)[:-2])
 
-    merged_with_sources["hour"] = (merged_with_sources["hour_wav"] + ":"
-                                   + merged_with_sources["minute_wav"])
+    merged_with_sources["date"] = (merged_with_sources["year"].map(str) + "-"
+                                   + merged_with_sources["month"]
+                                   + "-" + merged_with_sources["day"])
+
+    merged_with_sources["hour"] = (merged_with_sources["hour"] + ":"
+                                   + merged_with_sources["minute"])
 
 
-    merged_with_sources["date"] = pd.to_datetime(merged_with_sources["date"])
-    merged_with_sources.sort_values(by="date", inplace=True)
-    X_train, X_test, y_train, y_test = prepare dataset(merged_with_sources)
+    # merged_with_sources["date"] = pd.to_datetime(merged_with_sources["date"])
+    # merged_with_sources.sort_values(by="date", inplace=True)
+
+    print("Build model")
+    X_train, X_test, y_train, y_test = prepare_dataset(merged_with_sources)
     y_pred, rsquared = build_model(X_train, X_test, y_train, y_test)
+    print("Rsquared is: {}".format(np.round(rsquared,3)))
+    pd.DataFrame(y_pred, columns=["predictions"]).to_csv("predictions.csv", index=False)
 
 
 
