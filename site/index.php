@@ -25,12 +25,25 @@
     </div>
 
 <body style="font-family: Arial,Helvetica Neue,Helvetica,sans-serif; ">
-    <img src="logo.jpg" style="height:128px;width:128px;">
+    <table class="noselect" style="height: 28px; width: 261px;">
+        <tbody>
+            <tr>
+                <td style="width: 93px;"><img style="width: 100px; height: 100px;" src="http://pseidon.ml/logo.png" /></td>
+                <td style="width: 152px;font-family: 'Open Sans', sans-serif; color:aliceblue; font-size:30pt; vertical-align:middle"><b>pseidon</b></td>
+            </tr>
+        </tbody>
+    </table>
     <div id="leafletmap"></div>
 
     <style>
         #leafletmap {
             height: 500px;
+        }
+
+        body {
+            background-color: #7f5a83;
+            background-image: linear-gradient(315deg, #7f5a83 0%, #0d324d 74%);
+            height: 100%;
         }
     </style>
     <script>
@@ -39,16 +52,7 @@
 
         // TODO: replace reference and data + origin of map
         // load a tile layer
-        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-                    '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                    'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                maxZoom: 18,
-                id: 'mapbox/streets-v11',
-                tileSize: 512,
-                zoomOffset: -1,
-                accessToken: 'pk.eyJ1IjoibXAyNiIsImEiOiJjaXBsbHBvbTAwMDhtdmJudGU2cHBjZTN3In0._OyAEEAuscIVkPmPuCF5pg'
-            })
+        L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png")
             .addTo(map);
         var te = "";
         var tese = 0;
