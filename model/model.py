@@ -10,6 +10,8 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
+# this model doesn't really work. bad and messy data
+
 
 def filter_time(df, threshold):
     filter_df = df.loc[df.year > threshold].copy()
